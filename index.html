@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSI Explorer | CNS Mini Project</title>
+<style>
+:root{--bg:#07111f;--panel:#101f33;--panel2:#142740;--line:#29405c;--text:#eaf2ff;--muted:#9db0ca;--accent:#58d6c7;--blue:#6ea8fe;--gold:#ffd166}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 15% 0%,#153453 0,transparent 35%),var(--bg);color:var(--text);line-height:1.55}
+header{padding:28px 20px 18px;max-width:1150px;margin:auto} .eyebrow{color:var(--accent);font-size:.8rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
+h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.05;margin:8px 0}h1 span{color:var(--accent)}p{color:var(--muted)}.wrap{max-width:1150px;margin:auto;padding:0 20px 40px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 22px}.tab,.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:11px;padding:10px 14px;cursor:pointer;font-weight:700}.tab.active,.btn.primary{background:var(--accent);color:#062126;border-color:var(--accent)}button:hover{filter:brightness(1.12)}button:focus,input:focus{outline:2px solid var(--blue);outline-offset:2px}
+.panel{background:linear-gradient(145deg,rgba(20,39,64,.96),rgba(13,27,45,.96));border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 16px 40px #0002}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.layers{display:grid;gap:8px}.layer{display:flex;align-items:center;gap:12px;text-align:left;width:100%;padding:12px;border:1px solid var(--line);background:#0b192a;color:var(--text);border-radius:12px;cursor:pointer}.layer.active{border-color:var(--accent);background:#12333c}.num{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:#1d3b58;font-weight:900;color:var(--accent);flex-shrink:0}.layer small{display:block;color:var(--muted);font-weight:400}.tag{display:inline-block;border:1px solid #2c5d69;color:var(--accent);padding:4px 9px;border-radius:99px;font-size:.78rem;font-weight:800}.muted{color:var(--muted)}.detail h2{margin:12px 0 4px}.detail h3{font-size:1rem;margin-bottom:4px}.detail ul{padding-left:20px;color:var(--muted)}.detail li{margin:5px 0}.callout{border-left:3px solid var(--gold);padding:10px 13px;background:#2b2a24;border-radius:0 10px 10px 0;color:#fff0c2;margin-top:14px}
+input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#071522;color:var(--text);font:inherit;margin:8px 0 12px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.progress{height:8px;background:#263a52;border-radius:99px;overflow:hidden;margin:15px 0}.progress div{height:100%;width:0;background:var(--accent);transition:width .3s}.packet{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;word-break:break-word;background:#06111d;border:1px dashed #43617f;padding:14px;border-radius:12px;color:#c4f7ef;min-height:75px}.hidden{display:none}.quiz-option{display:block;width:100%;text-align:left;margin:8px 0;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0b192a;color:var(--text);cursor:pointer}.feedback{min-height:26px;font-weight:700}.foot{text-align:center;color:var(--muted);font-size:.85rem;padding:20px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.wrap{padding:0 13px 28px}header{padding:24px 16px 10px}.panel{padding:16px}}
+</style>
+</head>
+<body>
+<header>
+<div class="eyebrow">Computer Networking Systems · Mini Project</div>
+<h1>OSI <span>Explorer</span></h1>
+<p>An interactive, browser-based demonstration of the seven-layer OSI model, encapsulation and decapsulation.</p>
+<nav aria-label="Project sections">
+<button class="tab active" data-view="explorer">Layer Explorer</button>
+<button class="tab" data-view="simulator">Transmission Simulator</button>
+<button class="tab" data-view="quiz">Quick Quiz</button>
+</nav>
+</header>
+<main class="wrap">
+<section id="explorer" class="view">
+<div class="grid">
+<div class="panel"><h2>Explore the seven layers</h2><p class="muted">Select a layer to see its role, examples and common devices.</p><div id="layerList" class="layers"></div></div>
+<div class="panel detail" id="layerDetail" aria-live="polite"></div>
+</div>
+</section>
+<section id="simulator" class="view hidden">
+<div class="panel">
+<h2>Message transmission simulator</h2>
+<p>Enter a short message, then step through a simplified sender-to-receiver journey. This is a learning simulation, not a real packet capture.</p>
+<label for="message"><strong>Message to send</strong></label>
+<input id="message" maxlength="120" value="Hello CNS!" placeholder="Type your message">
+<div class="actions"><button class="btn primary" id="start">Start / Restart</button><button class="btn" id="prev">Previous</button><button class="btn" id="next">Next step</button><button class="btn" id="auto">Show full journey</button></div>
+<div class="progress"><div id="progressBar"></div></div>
+<div class="grid">
+<div class="panel"><span class="tag" id="stepTag">Ready</span><h2 id="stepTitle">Ready to transmit</h2><p id="stepText">Press Start / Restart to begin at the Application layer.</p><div class="packet" id="packet">Your message will appear here.</div></div>
+<div class="panel"><h3>Journey</h3><div id="journey" class="layers"></div><p class="muted" id="journeyNote">Sender: layers 7 → 1. Receiver: layers 1 → 7.</p></div>
+</div>
+</div>
+</section>
+<section id="quiz" class="view hidden">
+<div class="panel"><h2>Test your CNS knowledge</h2><p class="muted">Choose one answer for each question.</p><div class="tag" id="quizCount">Question 1 of 5</div><h3 id="question"></h3><div id="options"></div><p class="feedback" id="feedback" aria-live="polite"></p><div class="actions"><button class="btn primary" id="quizNext">Next question</button><button class="btn" id="quizReset">Restart quiz</button></div><p id="score" class="muted"></p></div>
+</section>
+<div class="foot">OSI Explorer · CNS Group Mini Project · Built with HTML, CSS and JavaScript</div>
+</main>
+<script>
+const layers=[
+{n:7,name:"Application",unit:"Data",role:"Provides network services directly to user-facing applications.",examples:"HTTP/HTTPS, DNS, SMTP",devices:"Application software, proxy servers",detail:"Browsers, email clients and other applications use protocols at this layer to request network services.",tip:"Example: a browser requests a web page using HTTP or HTTPS."},
+{n:6,name:"Presentation",unit:"Data",role:"Represents, translates, compresses or encrypts data.",examples:"TLS/SSL concepts, JPEG, UTF-8",devices:"Usually implemented in software",detail:"This layer is concerned with how information is represented so the receiving application can interpret it.",tip:"Example: text encoding or encrypting data before transmission. In real TCP/IP networks, these responsibilities may be handled by application libraries."},
+{n:5,name:"Session",unit:"Data",role:"Establishes, manages and ends communication sessions.",examples:"Session control, RPC concepts",devices:"Usually software services",detail:"The textbook OSI model describes this layer as coordinating dialogs between applications.",tip:"Example: managing a logical conversation between two application endpoints."},
+{n:4,name:"Transport",unit:"Segment (TCP) / Datagram (UDP)",role:"Provides end-to-end transport, ports and (with TCP) reliable ordered delivery.",examples:"TCP, UDP",devices:"Firewalls and load balancers can inspect transport data",detail:"Transport protocols use port numbers to direct data to the correct application. TCP provides reliability; UDP has lower overhead but does not guarantee delivery.",tip:"Example: a TCP source and destination port help identify a connection."},
+{n:3,name:"Network",unit:"Packet",role:"Logical addressing and routing between networks.",examples:"IPv4, IPv6, ICMP",devices:"Routers, Layer 3 switches",detail:"The network layer uses IP addresses and routing decisions to move packets between networks.",tip:"Example: an IP packet has source and destination IP addresses."},
+{n:2,name:"Data Link",unit:"Frame",role:"Transfers frames over a local link; uses link-layer addressing and error detection.",examples:"Ethernet, Wi-Fi (802.11), PPP",devices:"Switches, bridges, network interface cards",detail:"A frame carries link-layer information used for delivery over a local network segment. Ethernet frames commonly include MAC addresses and an error-detection field.",tip:"Example: an Ethernet frame contains source and destination MAC addresses."},
+{n:1,name:"Physical",unit:"Bits",role:"Transmits raw bits as electrical, optical or radio signals.",examples:"Ethernet physical standards, fiber optics, radio",devices:"Cables, connectors, repeaters, hubs",detail:"This layer defines signaling, media, connectors and physical transmission characteristics.",tip:"Example: bits travel as signals over copper, fiber or wireless radio."}
+];
+const list=document.getElementById('layerList'),detail=document.getElementById('layerDetail');
+let selected=7;
+function showLayer(n){selected=n;list.innerHTML=layers.map(l=>`<button class="layer ${l.n===n?'active':''}" data-layer="${l.n}"><span class="num">${l.n}</span><span><strong>${l.name}</strong><small>${l.unit}</small></span></button>`).join('');list.querySelectorAll('button').forEach(b=>b.onclick=()=>showLayer(+b.dataset.layer));const l=layers.find(x=>x.n===n);detail.innerHTML=`<span class="tag">Layer ${l.n} of 7</span><h2>${l.name} Layer</h2><p>${l.role}</p><h3>Examples</h3><p>${l.examples}</p><h3>Common devices / implementation</h3><p>${l.devices}</p><h3>What it does</h3><p>${l.detail}</p><div class="callout">${l.tip}</div>`}
+showLayer(7);
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('hidden',v.id!==t.dataset.view))});
+let step=-1;const steps=[
+{n:7,title:"Application — create data",text:"The user-facing application prepares the message.",packet:()=>`DATA: ${msg()}`},
+{n:6,title:"Presentation — represent data",text:"A conceptual representation / encoding step is shown. Real protocols may handle this elsewhere in the TCP/IP stack.",packet:()=>`REPRESENTATION[${msg()}]`},
+{n:5,title:"Session — manage dialog",text:"The OSI model describes session coordination between endpoints.",packet:()=>`SESSION{REPRESENTATION[${msg()}]}`},
+{n:4,title:"Transport — add transport information",text:"A simplified transport header is added. TCP and UDP are different transport protocols.",packet:()=>`TCP[src port: 51500 | dst port: 443] + SESSION{...${msg()}...}`},
+{n:3,title:"Network — add IP addressing",text:"A simplified IP header identifies source and destination IP addresses.",packet:()=>`IP[src: 192.0.2.10 | dst: 198.51.100.20] + TCP + DATA`},
+{n:2,title:"Data Link — frame the packet",text:"A local-link frame is formed with illustrative MAC addresses and an error-checking concept.",packet:()=>`ETH[src MAC: AA:BB:CC:11:22:33 | dst MAC: DD:EE:FF:44:55:66] + IP + TCP + DATA`},
+{n:1,title:"Physical — transmit bits",text:"The frame is represented as bits/signals on the physical medium.",packet:()=>`BITS: 01001000 01100101 01101100 01101100 01101111 …`},
+{n:2,title:"Receiver — inspect frame",text:"The receiver processes the incoming frame and removes link-layer information.",packet:()=>`Frame received → Data Link header/trailer removed`},
+{n:3,title:"Receiver — inspect IP packet",text:"The network layer processes the IP header and passes the payload upward.",packet:()=>`IP header processed → packet payload passed upward`},
+{n:4,title:"Receiver — deliver to application port",text:"The transport layer processes the segment/datagram and uses port information.",packet:()=>`Transport header processed → application data`},
+{n:5,title:"Receiver — session handling",text:"Any session-related coordination is handled conceptually at this layer.",packet:()=>`Session context checked`},
+{n:6,title:"Receiver — interpret data",text:"The receiving application interprets the representation and any applicable decoding.",packet:()=>`Data representation interpreted`},
+{n:7,title:"Application — message delivered",text:()=>`The receiver's application can now display the original message: “${msg()}”.`,packet:()=>`DELIVERED MESSAGE: ${msg()}`}
+];
+function msg(){return document.getElementById('message').value.trim()||'Hello CNS!'}
+function renderJourney(){const j=document.getElementById('journey');j.innerHTML=layers.map(l=>`<div class="layer" style="cursor:default;${step>=0 && ((step<7&&l.n===7-step)||(step>=7&&l.n===step-5))?'border-color:var(--accent);background:#12333c':''}"><span class="num">${l.n}</span><span><strong>${l.name}</strong><small>${step>=0&&((step<7&&l.n===7-step)||(step>=7&&l.n===step-5))?'Current step':'OSI layer'}</small></span></div>`).join('')}
+function renderStep(){const s=steps[step];document.getElementById('stepTag').textContent=`Step ${step+1} of ${steps.length}`;document.getElementById('stepTitle').textContent=s.title;document.getElementById('stepText').textContent=typeof s.text==='function'?s.text():s.text;document.getElementById('packet').textContent=s.packet();document.getElementById('progressBar').style.width=((step+1)/steps.length*100)+'%';renderJourney()}
+document.getElementById('start').onclick=()=>{step=0;renderStep()};document.getElementById('next').onclick=()=>{if(step<0)step=0;else if(step<steps.length-1)step++;renderStep()};document.getElementById('prev').onclick=()=>{if(step>0)step--;renderStep()};document.getElementById('auto').onclick=()=>{step=steps.length-1;renderStep()};document.getElementById('message').addEventListener('change',()=>{if(step>=0)renderStep()});
+const qs=[
+{q:"Which OSI layer is associated with logical IP addressing and routing?",a:["Data Link","Network","Transport","Physical"],correct:1,why:"The Network layer (Layer 3) handles logical addressing and routing."},
+{q:"Which layer commonly uses TCP and UDP?",a:["Application","Session","Transport","Presentation"],correct:2,why:"TCP and UDP are Transport-layer protocols."},
+{q:"What is the protocol data unit commonly associated with the Data Link layer?",a:["Bit","Frame","Packet","Segment"],correct:1,why:"The Data Link layer commonly handles frames."},
+{q:"Which device typically forwards packets between IP networks?",a:["Hub","Router","Repeater","Connector"],correct:1,why:"Routers forward packets using network-layer information."},
+{q:"What is decapsulation?",a:["Adding headers at the sender","Removing and processing protocol information at the receiver","Converting a domain name to an IP address only","Sending radio waves"],correct:1,why:"Decapsulation is the receiver-side process of processing/removing protocol headers as data moves up the stack."}
+];let qi=0,score=0,answered=false;
+function renderQuiz(){answered=false;const q=qs[qi];document.getElementById('quizCount').textContent=`Question ${qi+1} of ${qs.length}`;document.getElementById('question').textContent=q.q;document.getElementById('options').innerHTML=q.a.map((a,i)=>`<button class="quiz-option" data-i="${i}">${String.fromCharCode(65+i)}. ${a}</button>`).join('');document.getElementById('feedback').textContent='';document.getElementById('score').textContent=`Score: ${score}/${qs.length}`;document.getElementById('quizNext').textContent=qi===qs.length-1?'Finish quiz':'Next question';document.querySelectorAll('.quiz-option').forEach(b=>b.onclick=()=>{if(answered)return;answered=true;const ok=+b.dataset.i===q.correct;if(ok)score++;document.getElementById('feedback').textContent=(ok?'Correct! ':'Not quite. ')+q.why;document.getElementById('score').textContent=`Score: ${score}/${qs.length}`;document.querySelectorAll('.quiz-option').forEach((x,i)=>{x.disabled=true;if(i===q.correct)x.style.borderColor='var(--accent)';else if(i===+b.dataset.i)x.style.borderColor='#ff7b7b'})})}
+document.getElementById('quizNext').onclick=()=>{if(qi<qs.length-1){qi++;renderQuiz()}else{document.getElementById('question').textContent=`Quiz complete — you scored ${score} out of ${qs.length}.`;document.getElementById('options').innerHTML='';document.getElementById('feedback').textContent=score>=4?'Great work!':'Review the layer explorer and try again.';document.getElementById('quizNext').disabled=true}};document.getElementById('quizReset').onclick=()=>{qi=0;score=0;document.getElementById('quizNext').disabled=false;renderQuiz()};renderQuiz();
+</script>
+</body>
+</html>
